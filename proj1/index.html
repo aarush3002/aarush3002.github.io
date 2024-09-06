@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            width: 400px;
+            height: auto
+        }
+    </style>
+</head>
+<body>
+    <h1>Project 1: Aligning Glass Plate Images</h1>
+    <a href="../index.html">Back to Main Page</a>
+    <h2>Background</h2>
+    <p>Yeah basically some old people took some glass photos in red blue and green scales, 
+        and we have to align them together into one colorized image
+    </p>
+    <h2>Methodology</h2>
+    <p>
+        I first tried a single-scale alignment strategy which naively swept over a translation range of [-15, -15] to [15, 15] and
+        calculating the Euclidean distance to score each attempt, but 
+        this didn't work for the larger images with thousands of pixels along each dimension. Eventually the method that worked best 
+        for me was using a multi-scale/image pyramid alignment algorithm, using 
+        <a href="https://scikit-image.org/docs/stable/api/skimage.metrics.html#skimage.metrics.structural_similarity" target="_blank">structural similarity</a>
+        to score the alignments.
+         
+        <h3>Single-scale alignment algorithm</h3>
+        <ol>
+            <li>
+                Crop the image channels by 10% on all sides to get rid of the black borders.
+            </li>
+            <li>
+                Sweep over translations from [-15, -15] to [15, 15].
+            </li>
+            <li>
+                See which translation results in the lowest Euclidean distance from the anchor channel.
+            </li>
+            <li>
+                Return the aligned channel and the alignment used.
+            </li>
+            <li>
+                Repeat for the other channel to be aligned (red/green)
+            </li>
+        </ol>
+
+        <h3>Multi-scale alignment algorithm</h3>
+        <ol>
+            <li>Crop the image channels by 10% on all sides to get rid of the black borders.</li>
+            <li>If the number of pixels in the channel <i>to be aligned</i> is greater than 40,000, then recursively call <b>align</b> on 
+            scaled down (by a factor of 2) versions of the channels</li>
+            <li>
+                At the bottom of the recursive stack, run the single-scale alignment algorithm on the downscaled image channels (now using SSIM to score alignments)
+            </li>
+            <li>
+                Return the alignment used so that the next level of the recursive stack can use that * 2 as its initial offset
+            </li>
+            <li>
+                As we move up the recursive stack, perform the initial offset from the previous level of the recursion, then add the current
+                level's offset to that and pass it to the next level.
+            </li>
+            <li>
+                Alignments that are NOT at the lowest level of the image pyramid do not need to sweep over such a large range, so
+                instead sweep over a range of [-3, 3] for the upper levels.
+            </li>
+            <li>
+                Repeat the same process for aligning the red and green channels to the anchor blue channel.
+            </li>
+        </ol>
+    </p>
+    <h2>Results (Multiscale Alignment Algorithm)</h2>
+    <h4>Cathedral</h4>
+    <figure>
+        <img src="media/out_cathedral.jpg">
+        <figcaption>Red Alignment: [12, 3]</figcaption>
+        <figcaption>Green Alignment: [5, 2]</figcaption>
+    </figure>
+    <h4>Church</h4>
+    <figure>
+        <img src="media/out_church.jpg">
+        <figcaption>Red Alignment: [58, -4]</figcaption>
+        <figcaption>Green Alignment: [25, 4]</figcaption>
+    </figure>
+    <h4>Emir</h4>
+    <figure>
+        <img src="media/out_emir.jpg">
+        <figcaption>Red Alignment: [106, 41]</figcaption>
+        <figcaption>Green Alignment: [50, 23]</figcaption>
+    </figure>
+    <h4>Harvesters</h4>
+    <figure>
+        <img src="media/out_harvesters.jpg">
+        <figcaption>Red Alignment: [123, 13]</figcaption>
+        <figcaption>Green Alignment: [59, 16]</figcaption>
+    </figure>
+    <h4>Icon</h4>
+    <figure>
+        <img src="media/out_icon.jpg">
+        <figcaption>Red Alignment: [89, 23]</figcaption>
+        <figcaption>Green Alignment: [40, 17]</figcaption>
+    </figure>
+    <h4>Lady</h4>
+    <figure>
+        <img src="media/out_lady.jpg">
+        <figcaption>Red Alignment: [119, 12]</figcaption>
+        <figcaption>Green Alignment: [56, 9]</figcaption>
+    </figure>
+    <h4>Melons</h4>
+    <figure>
+        <img src="media/out_melons.jpg">
+        <figcaption>Red Alignment: [117, 13]</figcaption>
+        <figcaption>Green Alignment: [80, 10]</figcaption>
+    </figure>
+    <h4>Monastery</h4>
+    <figure>
+        <img src="media/out_monastery.jpg">
+        <figcaption>Red Alignment: [3, 2]</figcaption>
+        <figcaption>Green Alignment: [-3, 2]</figcaption>
+    </figure>
+    <h4>Onion Church</h4>
+    <figure>
+        <img src="media/out_onion_church.jpg">
+        <figcaption>Red Alignment: [108, 35]</figcaption>
+        <figcaption>Green Alignment: [57, 21]</figcaption>
+    </figure>
+    <h4>Sculpture</h4>
+    <figure>
+        <img src="media/out_sculpture.jpg">
+        <figcaption>Red Alignment: [140, -27]</figcaption>
+        <figcaption>Green Alignment: [33, -11]</figcaption>
+    </figure>
+    <h4>Self Portrait</h4>
+    <figure>
+        <img src="media/out_self_portrait.jpg">
+        <figcaption>Red Alignment: [175, 37]</figcaption>
+        <figcaption>Green Alignment: [78, 29]</figcaption>
+    </figure>
+    <h4>Three Generations</h4>
+    <figure>
+        <img src="media/out_three_generations.jpg">
+        <figcaption>Red Alignment: [113, 10]</figcaption>
+        <figcaption>Green Alignment: [56, 16]</figcaption>
+    </figure>
+    <h4>Tobolsk</h4>
+    <figure>
+        <img src="media/out_tobolsk.jpg">
+        <figcaption>Red Alignment: [6, 3]</figcaption>
+        <figcaption>Green Alignment: [3, 3]</figcaption>
+    </figure>
+    <h4>Train</h4>
+    <figure>
+        <img src="media/out_train.jpg">
+        <figcaption>Red Alignment: [85, 31]</figcaption>
+        <figcaption>Green Alignment: [41, 7]</figcaption>
+    </figure>
+</body>
+</html>
