@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 2: Filters and Frequencies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            width: 400px;
+            height: auto
+        }
+    </style>
+</head>
+<body>
+    <h1>Project 2: Filters and Frequencies</h1>
+    <a href="../index.html">Back to Main Page</a>
+    <h2>1.1 Finite Difference Operator</h2>
+    <h3>Gradient Magnitude Computation</h3>
+    <p>We start by defining the finite difference operators for the x and y directions respectively.
+        We then convolve the original image by the Dx operator and the Dy operator, creating two new 
+        images that detect the horizontal and vertical edges respectively. To calculate the gradient 
+        magnitude, I stacked the x and y partial derivative images and took the L2 norm to find the
+        final pixel values.
+    </p>
+    <figure>
+        <img src="media/original_images/cameraman.png">
+        <figcaption>Original Cameraman Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/binarized_x_partial.png">
+        <figcaption>Binarized dX, threshold=0.1</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/binarized_y_partial.png">
+        <figcaption>Binarized dY, threshold=0.1</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/finite_difference_operator.png">
+        <figcaption>Binarized Gradient Magnitude Image, threshold=0.2</figcaption>
+    </figure>
+    <h2>1.2 Derivative of Gaussian Filter</h2>
+    <figure>
+        <img src="media/results/gaussian_blurred_image.png">
+        <figcaption>Gaussian Blurred Cameraman Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/dog_separate.png">
+        <figcaption>Derivative of Gaussian Filter</figcaption>
+    </figure>
+    <p>I noticed some key differences from the DoG filter versus the finite difference operator. The edge lines seem to be much thicker,
+        implying that there were a lot more "activations" of the DoG filter. You can clearly see the outline of the man and his camera.
+        There is also less noise since our threshold did not have to be too low to capture the relevant edges.
+    </p>
+    <p>I also noticed that doing the entire process in a single convolution by first blurring the finite difference operators with the
+        Gaussian kernel resulted in the same exact image.
+    </p>
+    <h2>2.1 Image "Sharpening"</h2>
+    <figure>
+        <img src="media/original_images/taj.jpg">
+        <figcaption>Original Blurry Taj Mahal Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/sharpened_taj_mahal.png">
+        <figcaption>Sharpened Taj Mahal Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/original_images/city_night.jpg">
+        <figcaption>Original Sharp City Night Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blurred_city.png">
+        <figcaption>Blurred City Night Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/resharpened_city.png">
+        <figcaption>Resharpened City Night Image</figcaption>
+    </figure>
+    <p>Based on visual observation, the resharpened image seems to be at the same level of "sharpness" as the original.</p>
+    <h2>2.2 Hybrid Images</h2>
+    <h3>Derek and Nutmeg Blend</h3>
+    <figure>
+        <img src="media/results/derek_bw_img.png">
+        <figcaption>Derek Original</figcaption>
+    </figure>
+    <figure>
+        <img src="media/original_images/original_derek_fft.png">
+        <figcaption>Derek FFT</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/nutmeg_bw_img.png">
+        <figcaption>Nutmeg Original</figcaption>
+    </figure>
+    <figure>
+        <img src="media/original_images/original_nutmeg_fft.png">
+        <figcaption>Nutmeg FFT</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/low_freq_derek_fft.png">
+        <figcaption>Low Frequency Derek FFT</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/high_freq_nutmeg_fft.png">
+        <figcaption>High Frequency Nutmeg FFT</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/derek_nutmeg_blend.png">
+        <figcaption>Blended Derek and Nutmeg Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/high_freq_nutmeg_fft.png">
+        <figcaption>Blended Derek and Nutmeg FFT</figcaption>
+    </figure>
+    <h3>Woman and Lion Blend</h3>
+    <figure>
+        <img src="media/original_images/red_hair_woman.jpg">
+        <figcaption>Woman Original Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/original_images/lion.jpg">
+        <figcaption>Lion Original Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/woman_lion_blend.png">
+        <figcaption>Blended Woman and Lion</figcaption>
+    </figure>
+    <h3>Passage of Time (Blended Clocks)</h3>
+    <figure>
+        <img src="media/original_images/clock_1.png">
+        <figcaption>Clock 1</figcaption>
+    </figure>
+    <figure>
+        <img src="media/original_images/clock_2.png">
+        <figcaption>Clock 2</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_clocks.png">
+        <figcaption>Blended Clocks</figcaption>
+    </figure>
+    <p>For these images the blend is a little subtle - you can see that we used a low-pass filter for the first clock (whose
+        hands are blurred) and a high pass filter for the second clock (outlined hands)
+    </p>
+    <h2>2.3 Gaussian and Laplacian Stacks</h2>
+    <figure>
+        <img src="media/results/blend_apple_orange/laplacian_apple.png" style="width:800px">
+        <figcaption>Apple Laplacian</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/laplacian_orange.png" style="width:800px">
+        <figcaption>Orange Laplacian</figcaption>
+    </figure>
+    <h2>2.4 Multiresolution Blending</h2>
+    <h3>Apple and Orange Blend</h3>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth0.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth1.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth2.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth3.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth4.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth5.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth6.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth7.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth8.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/apple_orange_depth9.png">
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/mask.png">
+        <figcaption>Orange/Apple Mask</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_apple_orange/final_blend.png">
+        <figcaption>Orapple</figcaption>
+        <figcaption>See Laplacian stacks in section 2.3</figcaption>
+    </figure>
+    <h3>Berlin Wall Man and Woman Painting Blend</h3>
+    <figure>
+        <img src="media/original_images/man.jpg">
+        <figcaption>Painting of Man</figcaption>
+    </figure>
+    <figure>
+        <img src="media/original_images/woman.jpg">
+        <figcaption>Painting of Woman</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_man_woman/mask.png">
+        <figcaption>Man/Woman Mask</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_man_woman/laplacian_man.png" style="width:800px">
+        <figcaption>Laplacian of Man</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_man_woman/laplacian_woman.png" style="width:800px">
+        <figcaption>Laplacian of Woman</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_man_woman/final_blend.png">
+        <figcaption>Final Blended images</figcaption>
+    </figure>
+    <h3>Earth on Stage Blend</h3>
+    <figure>
+        <img src="media/original_images/earth.png">
+        <figcaption>Earth Original Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/original_images/stage.png">
+        <figcaption>Stage Original Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_earth_stage/mask.png">
+        <figcaption>Earth/Stage Mask</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_earth_stage/laplacian_earth.png" style="width:800px">
+        <figcaption>Earth Laplacian</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_earth_stage/laplacian_stage.png" style="width:800px">
+        <figcaption>Stage Laplacian</figcaption>
+    </figure>
+    <figure>
+        <img src="media/results/blend_earth_stage/final_blend.png">
+        <figcaption>Final Blended Earth/Stage</figcaption>
+    </figure>
+</body>
+</html>
