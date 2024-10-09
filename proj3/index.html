@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 3: Face Morphing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            width: 400px;
+            height: auto
+        }
+    </style>
+</head>
+<body>
+    <h1>Project 3: Face Morphing</h1>
+    <a href="../index.html">Back to Main Page</a>
+    <h2>Part 1: Defining Correspondences</h2>
+    <p>I used the tool linked in the spec to define 62 points of correspondence between my face and George Clooney's. I had to
+        resize my image to the same size as George so that it would properly map my points of choice. I then used Delaunay 
+        triangulation from scipy.spatial to generate the triangulation.
+    </p>
+    <figure>
+        <img src="media/aarush_triangulation.png">
+        <figcaption>My Delaunay Triangulation</figcaption>
+    </figure>
+    <figure>
+        <img src="media/george_triangulation.png">
+        <figcaption>George Clooney Triangulation</figcaption>
+    </figure>
+    <h2>Part 2: Computing the Midway Face</h2>
+    <p>This is using a warp factor and cross-disolve factor of 0.5. I warped both the images to the mean triangulation and then 
+        interpolated the colors using the inverse affine transformation. You can see artifacts from my hair because I didn't
+        pull my hair back when taking that picture, so you can't see the entirety of my forehead.
+    </p>
+    <figure>
+        <img src="media/id_card_cropped.png">
+        <figcaption>Cropped ID Card Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/george_small.jpg">
+        <figcaption>George Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/midway_image.png">
+        <figcaption>Midway Image</figcaption>
+    </figure>
+    <h2>Part 3: The Morph Sequence</h2>
+    <p>I created 30 frames for the morph sequence.</p>
+    <figure>
+        <img src="media/aarush_george_morph.gif">
+        <figcaption>Morph Sequence</figcaption>
+    </figure>
+    <h2>Part 4: The "Mean Face" of a Population</h2>
+    <figure>
+        <img src="media/average_face.png">
+        <figcaption>Average Face (Dane Dataset)</figcaption>
+    </figure>
+    <figure>
+        <img src="media/morph_01_to_avg.png">
+        <figcaption>Morph Image 01 to Average Shape</figcaption>
+    </figure>
+    <figure>
+        <img src="media/morph_05_to_avg.png">
+        <figcaption>Morph Image 05 to Average Shape</figcaption>
+    </figure>
+    <figure>
+        <img src="media/aarush_to_avg.png">
+        <figcaption>Morph My Face to Average Shape</figcaption>
+    </figure>
+    <figure>
+        <img src="media/avg_to_aarush.png">
+        <figcaption>Morph Average Face to My Shape</figcaption>
+    </figure>
+    <h2>Part 5 - Caricatures: Extrapolating from the Mean</h2>
+    <figure>
+        <img src="media/extrapolation.png">
+        <figcaption>Alpha = -1 (In the direction of my face)</figcaption>
+    </figure>
+</body>
+</html>
