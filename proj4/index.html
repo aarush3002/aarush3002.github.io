@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 4: Image Warping and Mosaicing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            width: 400px;
+            height: auto
+        }
+    </style>
+</head>
+<body>
+    <h1>Project 4: Image Warping and Mosaicing</h1>
+    <a href="../index.html">Back to Main Page</a>
+    <h2>Part 1: Shooting Pictures and Defining Correspondences</h2>
+    <p>The first part of this project was to shoot pictures. I was kind of lazy about this so I just shot some pictures of my room and of Soda.
+        The most important part about this step is to make sure that when taking the pictures, we should only rotate the camera around its axis,
+        and not do any translations. This is because otherwise it becomes impossible to find a common surface to which we can project the 
+        images onto, and there will be no affine transformation. I shot three images for each mosaic, making sure to keep at least 40-70% image 
+        overlap for each camera rotation. I then defined correspondences between sequential images using the tool from project 3.
+    </p>
+    <figure>
+        <img src="media/correspondence_plots/soda_left_to_center_corrs.png" style="width:800px">
+        <figcaption>Soda Left to Center Image Correspondences</figcaption>
+    </figure>
+    <figure>
+        <img src="media/correspondence_plots/soda_center_to_right_corrs.png" style="width:800px">
+        <figcaption>Soda Center to Right Image Correspondences</figcaption>
+    </figure>
+    <figure>
+        <img src="media/correspondence_plots/drawer_left_to_center_corrs.png" style="width:800px">
+        <figcaption>Drawer Left to Center Image Correspondences</figcaption>
+    </figure>
+    <figure>
+        <img src="media/correspondence_plots/drawer_center_to_right_corrs.png" style="width:800px">
+        <figcaption>Drawer Center to Right Image Correspondences</figcaption>
+    </figure>
+
+    <h2>Part 2: Calculating Homographies</h2>
+    <p>Using the correspondences defined above, we can calculate an affine transformation matrix to go from one image to another. Below is 
+        an image explaining how we calculate the transformation matrix given the correspondence points.
+    </p>
+    <figure>
+        <img src="media/alec_li_homography.png" style="width:800px">
+        <figcaption>I did the exact same thing as <a target='_blank' href="https://inst.eecs.berkeley.edu/~cs180/fa23/upload/files/proj4A/alec.li/">Alec Li (Fall 2023 CS 180)</a> and thought it would be a waste to rewrite everything, so I'm 
+            just using his explanation since it looks nice.
+        </figcaption>
+    </figure>
+    Technically, since there are 8 unknowns, we only need 4 correspondences because each correspondence generates two equations as shown above. However, this could lead to
+    an unstable transformation matrix calculation, so it's better to have an overdetermined system which is why I defined 8 correspondences between my images. I calculated the 
+    homographies from the side images to the center images, since I'm using the center image as my reference
+
+    <h2>Part 3: Warping Images</h2>
+    <p>The next task is to actually apply the homographies to the relevant images and warp them into the space of the reference image.
+        <ol>
+            <li>First, we need to calculate the bounding box of the warped image. To do this, we apply the homography to the corners of the original image,
+                and find the difference between the max(x) - min(x) and max(y) - min(y) to determine the minimum bounding box.
+            </li>
+            <li>
+                Then, because some of the warped corners might be negative/out of frame, we want to translate this bounding box so that the warped image's top
+                left corner will be at 0,0. The offset is just min(x) and min(y) so we simply subtract that offset from the warped corners
+            </li>
+            <li>
+                From here, it's essentially the same process as project 3, instead of warping each triangle, this time we can create a polygon using the warped
+                and shifted corners and then interpolate the color values accordingly. So it's like we're warping the entire image at once, rather than triangular patches.
+            </li>
+            <li>
+                We also add a mask to make sure that we are only interpolating from pixels that exist in the original image, and everything outside that mask
+                is going to be 0 (black pixel).
+            </li>
+        </ol>
+        Here are some examples of warped images:
+    </p>
+
+    <figure>
+        <img src="media/soda_images/image1.jpg" style="width:500px">
+        <figcaption>Original Left Soda Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/warped_left_soda.png" style="width:500px">
+        <figcaption>Warped Left Soda Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/soda_images/image3.jpg" style="width:500px">
+        <figcaption>Original Right Soda Image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/warped_right_soda.png" style="width:500px">
+        <figcaption>Warped Right Soda Image</figcaption>
+    </figure>
+
+
+    <h2>Part 4: Image Rectification</h2>
+    <p>To test out my warp function, I rectified some objects by selecting the corners of the objects and then setting the correspondences 
+        to some box like (0,0), (100, 0), (100, 100), (0, 100). From here I calculated the relevant homography for my warp function.</p>
+    <figure>
+        <img src="media/rectified_images/clairo_poster.jpg" style="width:500px">
+        <figcaption>Original Photo of Clairo Poster</figcaption>
+    </figure>
+    <figure>
+        <img src="media/rectified_images/rectified_clairo_poster.png" style="width:500px">
+        <figcaption>Rectified Photo of Clairo Poster</figcaption>
+    </figure>
+    <figure>
+        <img src="media/rectified_images/diagonal_box.jpg" style="width:500px">
+        <figcaption>Original Photo of Diagonal Snack Box</figcaption>
+    </figure>
+    <figure>
+        <img src="media/rectified_images/rectified_snack_box.png" style="width:500px">
+        <figcaption>Rectified Photo of Diagonal Snack Box</figcaption>
+    </figure>
+
+    <h2>Part 5: Blending Warped Images into a Mosaic</h2>
+    <p>This part required us to align the warped images with the reference image and create a mosaic. My naive approach was just to:
+        <ol>
+            <li>Combine the right image with the reference image. First, calculate a bounding box for this "right mosaic" by finding the max
+                between the warped image's size and the reference image shifted by the right image's offset.
+            </li>
+            <li>Place the warped right image at the top right corner of the bounding box</li>
+            <li>Translate the reference image from the top right corner using the right image's offset</li>
+            <li>Place the reference image at the specified place (overlapping with part of the warped right image)</li>
+            <li>Now, we need to add the warped left image to our right mosaic. We first calculate the bounding box for the 
+                entire mosaic.
+            </li>
+            <li>
+                Shift the warped left image down by left offset - right offset.
+            </li>
+            <li>
+                Shift the right mosaic right be -left offset.
+            </li>
+        </ol>
+        I create a "left mosaic" too, just to see whether that might be easier.
+        This naive approach didn't work because the overlap was not exactly aligned, so it created weird artifacts and you could see 
+        edge lines from the images. Additionally, because I was simply overlaying the images on top of each other,
+        some parts of the image were brighter than others. See the examples below:
+    </p>
+    <figure>
+        <img src="media/soda_final_images/soda_old_left_mosaic.png" style="width:500px">
+        <figcaption>(Bad) Soda Left Mosaic</figcaption>
+    </figure>
+    <figure>
+        <img src="media/soda_final_images/soda_old_right_mosaic.png" style="width:500px">
+        <figcaption>(Bad) Soda Right Mosaic</figcaption>
+    </figure>
+    <figure>
+        <img src="media/soda_final_images/soda_old_mosaic.png" style="width:500px">
+        <figcaption>(Bad) Soda Mosaic</figcaption>
+    </figure>
+    <p>To solve these issues, I used Laplacian blending from project 2 instead of just overlaying the images on top of each other.
+        For the mask, I just had a binary mask where the split point was in the middle of the overlapping region of the images.
+        This greatly improved the quality of the mosaic and removed almost all artifacts. Here are 3 examples below:
+    </p>
+    <figure>
+        <img src="media/soda_final_images/soda_mosaic.png" style="width:800px">
+        <figcaption>Soda Mosaic with Laplacian Image Blending</figcaption>
+    </figure>
+    <figure>
+        <img src="media/drawer_final_images/drawer_mosaic.png" style="width:800px">
+        <figcaption>Drawer Mosaic with Laplacian Image Blending</figcaption>
+    </figure>
+    <figure>
+        <img src="media/room_final_images/room_mosaic.png" style="width:800px">
+        <figcaption>Room Mosaic with Laplacian Image Blending</figcaption>
+    </figure>
+</body>
+</html>
