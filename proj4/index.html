@@ -211,10 +211,96 @@
 
     <h2>Step 3: Feature Extraction</h2>
     <p>The overall idea is that we want to find corresponding corners between images. To do this, we need to find a way to match 
-        the corners
+        the corners from one image to another. We need to match corners that look similar to each other because those will probably
+        become correspondences. We can collect features for each corner by sampling a 40x40 patch centered at each corner, and 
+        down-sampling (Gaussian blurring) that to an 8x8 patch which extracts the relevant features of that corner. We then normalize
+        this 8x8 feature map by subtracting the mean and dividing by the standard deviation.
     </p>
+
+    <figure>
+        <img src="media/part_b_images/soda_left_first_feature_descriptor.png" style="width:800px">
+        <figcaption>First Corner Feature Descriptor</figcaption>
+    </figure>
     
+    <h2>Step 4: Matching Feature Descriptors between Images</h2>
+    <p>After doing steps 1-3 for two images, we now have k (number of ANMS corners) feature descriptors for each image. We now 
+        need to match corners that have similar feature maps, since these probably correspond to the same corners in 
+        the images. First, we calculate the pairwise distances between image 1's descriptors and image 2's descriptors. Then,
+        for each descriptor in image 1, we take the 2 best descriptors from image 2. We then use Lowe's thresholding technique -
+        If the first nearest neighbor is at least 2 times better (threshold of 0.5) than the second nearest neighbor, then that 
+        means it's likely to be an actual match, so we add that to our list of matches. In practice, from the 200 corners
+        outputted by ANMS, I whittled it down to 31 likely correspondences using this technique.
+    </p>
 
+    <figure>
+        <img src="media/part_b_images/soda_left_to_center_corrs_auto.png" style="width:800px">
+        <figcaption>Matched Features (Green = Unmatched)</figcaption>
+    </figure>
 
+    <h2>Step 5: RANSAC (Random Sample Consensus)</h2>
+    <p>We are approaching the end of this process. We want the best possible correspondences to compute the most robust 
+        homography. If we just use all of the points from the process above, some of the correspondences will be wrong,
+        and since the homography calculation (least squares) is not robust to outliers, it will damage the homography
+        calculation. In the 4-point RANSAC algorithm, we select 4 random correspondences and compute a homography for that random
+        sample. Then, we apply that homography to the other correspondences to see if it transforms them correctly. If the 
+        Euclidean distance between actual point in image 2 and the transformed point (from applying the homography to 
+        image 1's point) is less than some threshold, then this correspondence is an "inlier" meaning that the current 
+        homography worked for that correspondence. Essentially, we keep sampling over thousands of iterations until we stop,
+        and then our new homography will be the one that had the most inliers. The inliers are the correspondences that we 
+        will use now, all the other correspondences will be discarded. In practice I used 4000 RANSAC iterations with a 
+        threshold of 1 to achieve the best results.
+    </p>
+
+    <figure>
+        <img src="media/part_b_images/soda_left_to_center_corrs_ransac.png" style="width:800px">
+        <figcaption>Yellow Line = Inlier Correspondences</figcaption>
+    </figure>
+
+    <h2>Comparison of Manual vs Auto Stitching</h2>
+
+    <p>Now that we have our homographies, we can use the code from part 4a to warp the images and create the mosaics.
+        Here are the 3 examples I chose.
+    </p>
+
+    <figure>
+        <img src="media/soda_final_images/soda_mosaic.png" style="width:800px">
+        <figcaption>Manual Soda Mosaic</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/part_b_images/soda_mosaic_auto.png" style="width:800px">
+        <figcaption>Automatic Soda Mosaic</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/drawer_final_images/drawer_mosaic.png" style="width:800px">
+        <figcaption>Manual Drawer Mosaic</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/part_b_images/drawer_mosaic_auto.png" style="width:800px">
+        <figcaption>Automatic Drawer Mosaic</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/room_final_images/room_mosaic.png" style="width:800px">
+        <figcaption>Manual Room Mosaic</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/part_b_images/room_mosaic_auto.png" style="width:800px">
+        <figcaption>Automatic Room Mosaic</figcaption>
+    </figure>
+
+    <h2>What I've learned</h2>
+
+    <p>Arguably, some of the automatically generated panoramas look better than the manually generated ones!
+        If we compare the Soda Hall mosaics, the manual one has some of the pillars slanted while the 
+        automatic one keeps them upright instead. Something new I learned about while doing this 
+        project is the Adaptive Non-Maximal Suppression algorithm. This might be the most interesting 
+        thing in this project, and implementing the function was a fun puzzle to figure out. RANSAC was 
+        also an interesting concept - it seems so intuitive, straightforward, and brute-forcey, but it did pull out the 
+        best correspondences. Sometimes the simplest algorithm is best!
+    </p>
 </body>
 </html>
