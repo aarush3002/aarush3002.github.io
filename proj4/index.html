@@ -166,5 +166,55 @@
         <img src="media/room_final_images/room_mosaic.png" style="width:800px">
         <figcaption>Room Mosaic with Laplacian Image Blending</figcaption>
     </figure>
+
+    <h1>Project 4B: Automatic Image Stitching</h1>
+    <p>In this part of the project, the idea is to automatically detect corners in the image, form correspondences between pairs of images,
+        and then select the best correspondences for the most stable homographies. This way, we don't have to manually select the correspondence
+        points.
+    </p>
+
+    <h2>Step 1: Detecting Corners in an Image</h2>
+    <p>In the first step, we want to find some points that generally resemble corners as these will provide a strong starting point for
+        discovering correspondences. To do this, we use the Harris corner detector (provided to us in the spec), which returns a number
+        of candidate corner points, as well as the 'corner-y-ness' of each pixel in the image. I decided to use a black and white image
+        to detect the corners as that was suggested in the spec. I ended up with around 6600 corners.
+    </p>
+    <figure>
+        <img src="media/part_b_images/soda_left_harris_corners.png" style="width:800px">
+        <figcaption>Harris Corners</figcaption>
+    </figure>
+    <figure>
+        <img src="media/part_b_images/soda_left_harris_heatmap.png" style="width:800px">
+        <figcaption>Harris Heatmap</figcaption>
+    </figure>
+
+    <p>We can see that the heatmap makes sense since it seems to follow the basic geometry of the image - the shape of the image
+        kind of slants towards the right side.
+    </p>
+
+    <h2>Step 2: Adaptive Non-Maximal Suppression</h2>
+    <p>For this step, we extract the strongest corners that are not too close to other "strongest" corners, in essentials. We start by 
+        sorting the candidate points in descending order of their strength values, obtained from the Harris strength array. 
+        It then calculates pairwise distances between all points using the dist2 helper function. For each point in this sorted list, 
+        the function calculates a "suppression radius" (r-value), which is the minimum distance to any previously processed point 
+        with a strength value that exceeds a fraction (c_robust) of the current point's strength. This ensures that only points that 
+        are sufficiently strong and spatially distinct from stronger points are retained. After calculating the suppression radius for 
+        each point, the points are ranked by their r-values. The larger the r-value, the stronger of a corner that point is (because
+        its strength is greater than all the other candidates within that radius). Optionally, we can take the top-k points from this 
+        ordered list instead of just returning the entire thing. I chose to take only the top 200 ANMS points, shown below.
+    </p>
+
+    <figure>
+        <img src="media/part_b_images/soda_left_anms_corners.png" style="width:800px">
+        <figcaption>Adaptive Non-Maximal Suppression Corners (Blue Points)</figcaption>
+    </figure>
+
+    <h2>Step 3: Feature Extraction</h2>
+    <p>The overall idea is that we want to find corresponding corners between images. To do this, we need to find a way to match 
+        the corners
+    </p>
+    
+
+
 </body>
 </html>
