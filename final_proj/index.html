@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Project: Image Colorization using Diffusion in LAB Space</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            width: 400px;
+            height: auto
+        }
+    </style>
+</head>
+<body>
+    <h1>Final Project Results and Graphs</h1>
+    <a href="../index.html">Back to Main Page</a>
+
+    <h2>Part 1: Time-Conditioned U-Net</h2>
+
+    <figure>
+        <img src="media/time_conditioned_training_losses_5_epoch.png" style="width:500px">
+        <figcaption>Time-Conditioned U-Net Training Losses (5 Epochs)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/time_conditioned_unet_results.png" style="width:1000px">
+        <figcaption>Time-Conditioned U-Net Results (Original Images, Black and White, 5 Epoch Results, 20 Epoch Results)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/horse11324e.png" style="width:500px">
+        <figcaption>Time-Conditioned Horse Results (5 Epochs)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/truck.png" style="width:500px">
+        <figcaption>Time-Conditioned Truck Results (5 Epochs)</figcaption>
+    </figure>
+
+
+
+    <h2>Part 2: Class-Conditioned U-Net</h2>
+
+    <figure>
+        <img src="media/class_conditioned_training_losses.png" style="width:500px">
+        <figcaption>Class-Conditioned U-Net Training Losses (20 Epochs)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/class_conditioned_unet_results.png" style="width:1000px">
+        <figcaption>Class-Conditioned U-Net Results, Guidance Scale=5.0 (Original Images, Black and White, 5 Epoch Results, 20 Epoch Results)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/class_conditioned_50_epoch_results.png" style="width:1000px">
+        <figcaption>Class-Conditioned U-Net Results, Guidance Scale=5.0 (50 Epoch Results)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/guidance_scale_horse.png" style="width:600px">
+        <figcaption>Class-Conditioned Horse Results, (5 epochs, 5 vs. 10 vs. 15 Guidance Scale)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/class_conditioned_15_20_epoch_15_guidance.png" style="width:500px">
+        <figcaption>Class-Conditioned Dog Results (15 vs. 20 epochs, Guidance Scale=15.0)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/epochs2.png" style="width:800px">
+        <figcaption>Class-Conditioned Frog Results (5 vs. 10 vs. 15 vs. 20 epochs, Guidance Scale=15.0)</figcaption>
+    </figure>
+
+    <h2>Part 3: Text-Conditioned U-Net</h2>
+
+    <figure>
+        <img src="media/text_conditioned_model_training_losses.png" style="width:500px">
+        <figcaption>Text-Conditioned U-Net Training Losses (10 Epochs)</figcaption>
+    </figure>
+
+    <figure>
+        <img src="media/text-cond.png" style="width:1000px">
+        <figcaption>Text-Conditioned U-Net Results</figcaption>
+    </figure>
+
+</body>
+</html>
